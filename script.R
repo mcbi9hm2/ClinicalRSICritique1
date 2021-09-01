@@ -37,7 +37,7 @@ plot(km0,confint=T,percent=F,atrisk.at=seq(0,12,2),background.horizontal=NULL,
      axis1.at=seq(0,12,2),xlab="Time (Years)",legend=F,logrank=T,
      atrisk.title="No. at Risk",ylab="Survival Fraction",xlim=c(0,12),col=c(1),
      marktime=T)
-# I think when you ahve such low number of events its good to see the uncertainty
+# I think when you have such low number of events its good to see the uncertainty
 # in the survival probability - you will easily con yourself otherwise
 
 summary(factor(rsi.all$Event_OS[rsi.all$Site=="endometrial"]))
@@ -65,6 +65,10 @@ summary(m0)#0.55 (0.05)
 m1<-(coxph(Surv(Time_OS,Event_OS)~RSI+TD,data=rsi.all[rsi.all$Site=="endometrial",]))
 summary(m1)# 
 anova(m0,m1)#0.671
+m2<-(coxph(Surv(Time_OS,Event_OS)~RSI*TD,data=rsi.all[rsi.all$Site=="endometrial",]))
+summary(m2)# 
+anova(m1,m2)#0.382
+
 
 # glioma where they also adjusted for MGMT expression - we shall first look
 # without it - its important to note that for some reason this was the only
@@ -74,15 +78,21 @@ summary(m0)#0.51 (0.03)
 m1<-(coxph(Surv(Time_OS,Event_OS)~RSI+TD,data=rsi.all[rsi.all$Site=="glioma",]))
 summary(m1)# 
 anova(m0,m1)#0.664
+m2<-(coxph(Surv(Time_OS,Event_OS)~RSI*TD,data=rsi.all[rsi.all$Site=="glioma",]))
+summary(m2)# 
+anova(m1,m2)#0.681
 
-m2<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression,data=rsi.all[rsi.all$Site=="glioma",]))
-summary(m2)#0.59 (0.03)
-m3<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression+RSI,data=rsi.all[rsi.all$Site=="glioma",]))
-summary(m3)#0.60 (0.03)
-anova(m3,m2)#0.050
-m4<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression+RSI+TD,data=rsi.all[rsi.all$Site=="glioma",]))
-summary(m4)# 
-anova(m3,m4)#0.0.814
+m3<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression,data=rsi.all[rsi.all$Site=="glioma",]))
+summary(m3)#0.59 (0.03)
+m4<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression+RSI,data=rsi.all[rsi.all$Site=="glioma",]))
+summary(m4)#0.60 (0.03)
+anova(m4,m3)#0.050
+m5<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression+RSI+TD,data=rsi.all[rsi.all$Site=="glioma",]))
+summary(m5)# 
+anova(m5,m4)#0.815
+m6<-(coxph(Surv(Time_OS,Event_OS)~MGMT_Expression+RSI*TD,data=rsi.all[rsi.all$Site=="glioma",]))
+summary(m6)# 
+anova(m6,m5)#0.605
 # After adjusting for MGMT we do see RSI explain a little of the variance but
 # still not elucidating a dose-response - you could argue there isn't enough
 # dose variation to see one but other results and prior knowledge tells us
@@ -93,14 +103,19 @@ m0<-(coxph(Surv(Time_OS,Event_OS)~RSI,data=rsi.all[rsi.all$Site=="lung",]))
 summary(m0)#0.55 (0.04)
 m1<-(coxph(Surv(Time_OS,Event_OS)~RSI+TD,data=rsi.all[rsi.all$Site=="lung",]))
 summary(m1)# 
-anova(m0,m1)#0.538
+anova(m1,m0)#0.538
+m2<-(coxph(Surv(Time_OS,Event_OS)~RSI*TD,data=rsi.all[rsi.all$Site=="lung",]))
+summary(m2)# 
+anova(m2,m1)#0.538
 
 m0<-(coxph(Surv(Time_OS,Event_OS)~RSI,data=rsi.all[rsi.all$Site=="pancreas",]))
 summary(m0)#0.55 (0.06)
 m1<-(coxph(Surv(Time_OS,Event_OS)~RSI+TD,data=rsi.all[rsi.all$Site=="pancreas",]))
 summary(m1)# 
-anova(m0,m1)#0.585
-
+anova(m1,m0)#0.585
+m2<-(coxph(Surv(Time_OS,Event_OS)~RSI*TD,data=rsi.all[rsi.all$Site=="pancreas",]))
+summary(m2)# 
+anova(m2,m1)#0.496
 
 m0<-(coxph(Surv(Time_OS,Event_OS)~RSI+strata(Site),data=rsi.all))
 summary(m0)#0.52 (0.02)
@@ -110,6 +125,9 @@ anova(m0,m1)#0.455
 m1<-(coxph(Surv(Time_OS,Event_OS)~RSI+TD+strata(Site),data=rsi.all))
 summary(m1)# 
 anova(m0,m1)#0.584
+m2<-(coxph(Surv(Time_OS,Event_OS)~RSI*TD+strata(Site),data=rsi.all))
+summary(m2)# 
+anova(m1,m2)#0.147
 
 # interestingly...
 m0<-(coxph(Surv(Time_OS,Event_OS)~gard+strata(Site),data=rsi.all))
@@ -117,8 +135,5 @@ summary(m0)#0.52 (0.02)
 # GARD is useless too.  Its likely that the breast data-set may have been
 # driving everything, melanoma may have too, but thats not been provided.
 m1<-(coxph(Surv(Time_OS,Event_OS)~gard*Site+strata(Site),data=rsi.all))
-summary(m1)# 
 anova(m0,m1)#0.823
-
-
 
